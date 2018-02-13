@@ -326,8 +326,8 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
   return TRUE;
 }
 
-static MetaMonitorsConfigKey *
-create_key_for_current_state (MetaMonitorManager *monitor_manager)
+MetaMonitorsConfigKey *
+meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_manager)
 {
   MetaMonitorsConfigKey *config_key;
   GList *l;
@@ -369,7 +369,8 @@ meta_monitor_config_manager_get_stored (MetaMonitorConfigManager *config_manager
   MetaMonitorsConfig *config;
   GError *error = NULL;
 
-  config_key = create_key_for_current_state (monitor_manager);
+  config_key =
+    meta_create_monitors_config_key_for_current_state (monitor_manager);
   if (!config_key)
     return NULL;
 
@@ -1307,6 +1308,10 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
     {
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
+
+      if (meta_monitor_manager_is_lid_closed (monitor_manager) &&
+          meta_monitor_is_laptop_panel (monitor))
+        continue;
 
       monitor_spec = meta_monitor_get_spec (monitor);
       if (meta_logical_monitor_configs_have_monitor (logical_monitor_configs,
